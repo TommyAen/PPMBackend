@@ -3,24 +3,86 @@
 <div class="container mt-4">
   <h2>Feed</h2>
 
-  <form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Pubblica</button>
-  </form>
+  <!-- Bottone per aprire la modale -->
+  {% if user.is_authenticated %}
+  <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createPostModal">
+    Crea Post
+  </button>
+
+  <!-- Modale -->
+  <div class="modal fade" id="createPostModal" tabindex="-1" aria-labelledby="createPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" enctype="multipart/form-data" action="{% url 'create-post' %}">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="createPostModalLabel">Nuovo Post</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+          </div>
+          <div class="modal-body">
+            {{ post_form.as_p }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+            <button type="submit" class="btn btn-primary">Crea Post</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% else %}
+    <p><a href="{% url 'login' %}">Accedi</a> per creare un post.</p>
+  {% endif %}
 
   <hr>
 
   {% for post in posts %}
-    <div class="card mb-3">
-      <div class="card-body">
-        <h5 class="card-title">{{ post.author.username }}</h5>
-        <p class="card-text">{{ post.content }}</p>
-        <p class="card-text"><small class="text-muted">{{ post.created_at|date:"d M Y H:i" }}</small></p>
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="d-flex justify-content-between">
+        <strong>{{ post.author.username }}</strong>
+        <small class="text-muted">{{ post.created_at|date:"d M Y H:i" }}</small>
+      </div>
+      <p>{{ post.content }}</p>
+
+      <!-- Like -->
+      <form method="post" action="{% url 'like-post' post.pk %}" class="d-inline">
+        {% csrf_token %}
+        {% if post.pk in liked_post_ids %}
+          <button type="submit" class="btn btn-sm btn-outline-danger">❤️ {{ post.likes.count }}</button>
+        {% else %}
+          <button type="submit" class="btn btn-sm btn-outline-primary">🤍 {{ post.likes.count }}</button>
+        {% endif %}
+      </form>
+
+      <!-- Commenti -->
+      <button class="btn btn-sm btn-link" data-bs-toggle="collapse" data-bs-target="#comments-{{ post.pk }}">
+        Commenti ({{ post.comments.count }})
+      </button>
+      <div class="collapse" id="comments-{{ post.pk }}">
+        <!-- Lista commenti -->
+        {% for comment in post.comments.all %}
+          <div class="border rounded p-2 mb-1">
+            <small><strong>{{ comment.author.username }}</strong> {{ comment.created_at|date:"d M Y H:i" }}</small>
+            <p class="mb-0">{{ comment.text }}</p>
+          </div>
+        {% empty %}
+          <p class="text-muted">Nessun commento</p>
+        {% endfor %}
+
+        <!-- Form commento -->
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'add-comment' post.pk %}">
+            {% csrf_token %}
+            {{ cform.text }}
+            <button type="submit">Commenta</button>
+          </form>
+        {% else %}
+          <p><a href="{% url 'login' %}">Accedi</a> per commentare.</p>
+        {% endif %}
       </div>
     </div>
-  {% empty %}
-    <p>Nessun post ancora.</p>
+  </div>
   {% endfor %}
 </div>
 {% endblock %}
