@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Profilo di {{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<h2>Profilo di {{ profile_user.username }}</h2>
+<p>Bio: {{ profile_user.bio }}</p>
+{% if profile_user.profile_image %}
+  <img src="{{ profile_user.profile_image.url }}" alt="Immagine profilo" width="200" />
+{% endif %}
+{% endblock %}
