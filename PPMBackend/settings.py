@@ -137,3 +137,8 @@ LOGOUT_REDIRECT_URL = '/'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://web-production-ebf1.up.railway.app",
+]
+
