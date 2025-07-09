@@ -40,7 +40,11 @@
   <div class="card mb-3">
     <div class="card-body">
       <div class="d-flex justify-content-between">
-        <strong>{{ post.author.username }}</strong>
+        <strong>
+            <a href="{% url 'profile-detail' pk=post.author.pk %}">
+                {{ post.author.username }}
+            </a>
+        </strong>
         <small class="text-muted">{{ post.created_at|date:"d M Y H:i" }}</small>
       </div>
       <p>{{ post.content }}</p>
@@ -63,7 +67,14 @@
         <!-- Lista commenti -->
         {% for comment in post.comments.all %}
           <div class="border rounded p-2 mb-1">
-            <small><strong>{{ comment.author.username }}</strong> {{ comment.created_at|date:"d M Y H:i" }}</small>
+            <small>
+              <strong>
+                <a href="{% url 'profile-detail' pk=comment.author.pk %}">
+                  {{ comment.author.username }}
+                </a>
+              </strong>
+              {{ comment.created_at|date:"d M Y H:i" }}
+            </small>
             <p class="mb-0">{{ comment.text }}</p>
           </div>
         {% empty %}
