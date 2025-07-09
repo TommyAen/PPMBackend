@@ -58,11 +58,13 @@ def accept_friend_request(request, request_id):
     friend_request = get_object_or_404(FriendRequest, id=request_id, to_user=request.user)
     friend_request.status = 'accepted'
     friend_request.save()
-    return redirect('friends_list')
+    return redirect('profile-detail', pk=request.user.pk)
+
 
 @login_required
 def reject_friend_request(request, request_id):
     friend_request = get_object_or_404(FriendRequest, id=request_id, to_user=request.user)
     friend_request.status = 'rejected'
     friend_request.save()
-    return redirect('friends_list')
+    return redirect('profile-detail', pk=request.user.pk)
+
