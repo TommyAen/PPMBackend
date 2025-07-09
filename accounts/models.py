@@ -11,6 +11,11 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
+    def friends(self):
+        accepted_from = FriendRequest.objects.filter(from_user=self, status='accepted').values_list('to_user',flat=True)
+        accepted_to = FriendRequest.objects.filter(to_user=self, status='accepted').values_list('from_user', flat=True)
+        return CustomUser.objects.filter(id__in=list(accepted_from) + list(accepted_to))
+
 class FriendRequest(models.Model):
     from_user = models.ForeignKey(CustomUser, related_name='sent_requests', on_delete=models.CASCADE)
     to_user = models.ForeignKey(CustomUser, related_name='received_requests', on_delete=models.CASCADE)
@@ -19,4 +24,7 @@ class FriendRequest(models.Model):
 
     class Meta:
         unique_together = ('from_user', 'to_user')
+
+    def __str__(self):
+        return f'{self.from_user.username} - {self.to_user.username}'
 

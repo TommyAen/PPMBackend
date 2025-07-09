@@ -1,10 +1,21 @@
 {% extends 'base.html' %}
-{% block title %}Profilo di {{ profile_user.username }}{% endblock %}
+{% load static %}
 
 {% block content %}
-<h2>Profilo di {{ profile_user.username }}</h2>
-<p>Bio: {{ profile_user.bio }}</p>
-{% if profile_user.profile_image %}
-  <img src="{{ profile_user.profile_image.url }}" alt="Immagine profilo" width="200" />
-{% endif %}
+  <h2>Profilo di {{ profile_user.username }}</h2>
+
+  <p><strong>Bio:</strong> {{ profile_user.bio }}</p>
+
+  {% if profile_user.profile_pic %}
+    <img src="{{ profile_user.profile_pic.url }}" alt="Immagine profilo" width="150">
+  {% endif %}
+
+  {% if request.user != profile_user %}
+    <form method="post" action="{% url 'send_friend_request' user_id=profile_user.id %}">
+      {% csrf_token %}
+      <button type="submit">Invia richiesta di amicizia</button>
+    </form>
+  {% else %}
+    <p>Questo è il tuo profilo.</p>
+  {% endif %}
 {% endblock %}
