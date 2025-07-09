@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView
 from .forms import CustomUserCreationForm
 from .models import CustomUser, FriendRequest
-
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 
 # Create your views here.
@@ -45,7 +46,7 @@ def send_friend_request(request, user_id):
     to_user = get_object_or_404(CustomUser, id=user_id)
     if to_user != request.user:
         FriendRequest.objects.get_or_create(from_user=request.user, to_user=to_user)
-    return redirect('profile-detail', pk=to_user.id)
+    return HttpResponseRedirect(reverse('profile-detail', kwargs={'pk': to_user.id}))
 
 @login_required
 def accept_friend_request(request, request_id):
