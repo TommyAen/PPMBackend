@@ -45,8 +45,13 @@ class ProfileDetailView(DetailView):
 def send_friend_request(request, user_id):
     to_user = get_object_or_404(CustomUser, id=user_id)
     if to_user != request.user:
-        FriendRequest.objects.get_or_create(from_user=request.user, to_user=to_user)
+        FriendRequest.objects.get_or_create(
+            from_user=request.user,
+            to_user=to_user,
+            defaults={'status': 'pending'}
+        )
     return HttpResponseRedirect(reverse('profile-detail', kwargs={'pk': to_user.id}))
+
 
 @login_required
 def accept_friend_request(request, request_id):
