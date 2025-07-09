@@ -25,6 +25,21 @@ class ProfileDetailView(DetailView):
     template_name = 'accounts/profile.html'
     context_object_name = 'profile_user'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        profile_user = self.get_object()
+        user = self.request.user
+
+        if user.is_authenticated:
+            # Controlla se esiste una richiesta già inviata da user a profile_user
+            context['request_sent'] = FriendRequest.objects.filter(from_user=user, to_user=profile_user,
+                                                                   status='pending').exists()
+
+            # Se sta visualizzando il proprio profilo, mostra richieste ricevute
+            if user == profile_user:
+                context['incoming_requests'] = FriendRequest.objects.filter(to_user=user, status='pending')
+
+        return context
 @login_required
 def send_friend_request(request, user_id):
     to_user = get_object_or_404(CustomUser, id=user_id)

@@ -11,11 +11,37 @@
   {% endif %}
 
   {% if request.user != profile_user %}
+  {% if request_sent %}
+    <button class="btn btn-secondary" disabled>Richiesta inviata</button>
+  {% else %}
     <form method="post" action="{% url 'send_friend_request' user_id=profile_user.id %}">
       {% csrf_token %}
-      <button type="submit">Invia richiesta di amicizia</button>
+      <button type="submit" class="btn btn-primary">Invia richiesta di amicizia</button>
     </form>
-  {% else %}
-    <p>Questo è il tuo profilo.</p>
   {% endif %}
+{% else %}
+  <p>Questo è il tuo profilo.</p>
+
+  {% if incoming_requests %}
+    <h4>Richieste di amicizia in sospeso:</h4>
+    <ul>
+      {% for req in incoming_requests %}
+        <li>
+          {{ req.from_user.username }}
+          <form method="post" action="{% url 'accept_friend_request' request_id=req.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success btn-sm">Accetta</button>
+          </form>
+          <form method="post" action="{% url 'reject_friend_request' request_id=req.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm">Rifiuta</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Nessuna richiesta di amicizia in sospeso.</p>
+  {% endif %}
+{% endif %}
+
 {% endblock %}
